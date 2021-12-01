@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 
 namespace Unit_11_Telegram_Bot
 {
@@ -25,6 +27,9 @@ namespace Unit_11_Telegram_Bot
         }
     }
 
+    /// <summary>
+    /// Токен
+    /// </summary>
     public static class BotCredentials
     {
         /// <summary>
@@ -35,6 +40,9 @@ namespace Unit_11_Telegram_Bot
 
     }
 
+    /// <summary>
+    /// Класс, отвечающий за работу клиента бота на верхнем уровне 
+    /// </summary>
     public class BotWorker
     {
         private ITelegramBotClient botClient;
@@ -81,15 +89,39 @@ namespace Unit_11_Telegram_Bot
         }
     }
 
+    /// <summary>
+    ///  Объект этого класса должен управлять логикой обработки полученных сообщений через метод Response. Объект класса должен быть создан при инициализации BotWorker в объект logic. Запишите измененный метод Inizalize объекта BotWorker.
+    /// </summary>
     class BotMessageLogic
     {
+
         private BotMessageLogic logic;
         private ITelegramBotClient botClient;
+
+
+        private Messenger messanger;
+        private Dictionary<long, Conversation> chatLis
 
         public void Inizalize()
         {
             botClient = new TelegramBotClient(BotCredentials.BotToken);
             logic = new BotMessageLogic();
+        }
+    }
+
+    /// <summary>
+    /// Этот класс представляет собой объект чата, так как чатов у нас может быть немало, нашему боту нужно отвечать каждому пользователю индивидуально. В этом классе нам требуется создать список сообщений и объект Телеграм-чата. Объекты должны быть приватные
+    /// </summary>
+    public class Conversation
+    {
+        private Chat telegramChat;
+
+        private List<Message> telegramMessages;
+
+        public Conversation(Chat chat)
+        {
+            telegramChat = chat;
+            telegramMessages = new List<Message>();
         }
     }
 }
