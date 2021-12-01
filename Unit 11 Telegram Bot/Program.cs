@@ -100,7 +100,8 @@ namespace Unit_11_Telegram_Bot
 
 
         private Messenger messanger;
-        private Dictionary<long, Conversation> chatLis
+
+        private Dictionary<long, Conversation> chatList;
 
         public void Inizalize()
         {
