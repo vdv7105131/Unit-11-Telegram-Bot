@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
@@ -33,8 +34,7 @@ namespace Unit_11_Telegram_Bot
     public static class BotCredentials
     {
         /// <summary>
-        /// Use this token to access the HTTP API:
-        /// 2136604647:AAH1ghd5fbxOhdW_-6ZU-fFgAIEOgXHUv-4
+        /// Token to access the HTTP API
         /// </summary>
         public static readonly string BotToken = "2136604647:AAH1ghd5fbxOhdW_-6ZU-fFgAIEOgXHUv-4";
 
@@ -46,6 +46,7 @@ namespace Unit_11_Telegram_Bot
     public class BotWorker
     {
         private ITelegramBotClient botClient;
+        private BotMessageLogic logic;
 
         /// <summary>
         /// создаем клиент бота
@@ -53,6 +54,7 @@ namespace Unit_11_Telegram_Bot
         public void Inizalize()
         {
             botClient = new TelegramBotClient(BotCredentials.BotToken);
+            logic = new BotMessageLogic(botClient);
         }
 
         /// <summary>
@@ -79,12 +81,9 @@ namespace Unit_11_Telegram_Bot
         /// <param name="e"></param>
         private async void Bot_OnMessage(object sender, MessageEventArgs e)
         {
-            if (e.Message.Text != null)
+            if (e.Message != null)
             {
-                Console.WriteLine($"Получено сообщение в чате: {e.Message.Chat.Id}.");
-
-                await botClient.SendTextMessageAsync(
-                chatId: e.Message.Chat, text: "Вы написали сообщение:\n" + e.Message.Text);
+                await logic.Response(e);
             }
         }
     }
@@ -94,19 +93,58 @@ namespace Unit_11_Telegram_Bot
     /// </summary>
     class BotMessageLogic
     {
-
-        private BotMessageLogic logic;
-        private ITelegramBotClient botClient;
-
-
         private Messenger messanger;
 
-        private Dictionary<long, Conversation> chatList;
+        private Dictionary<long,
+        Conversation> chatList;
 
-        public void Inizalize()
+        private ITelegramBotClient botClient;
+
+        public BotMessageLogic(ITelegramBotClient botClient)
         {
-            botClient = new TelegramBotClient(BotCredentials.BotToken);
-            logic = new BotMessageLogic();
+            messanger = new Messenger();
+            chatList = new Dictionary<long,
+            Conversation>();
+            this.botClient = botClient;
+        }
+
+        public async Task Response(MessageEventArgs e)
+        {
+            var Id = e.Message.Chat.Id;
+
+            if (!chatList.ContainsKey(Id))
+            {
+                var newchat = new Conversation(e.Message.Chat);
+
+                chatList.Add(Id, newchat);
+            }
+
+            var chat = chatList[Id];
+
+            chat.AddMessage(e.Message);
+
+            await SendTextMessage(chat);
+
+        }
+
+        private async Task SendTextMessage(Conversation chat)
+        {
+            var text = messanger.CreateTextMessage(chat);
+
+            await botClient.SendTextMessageAsync(
+            chatId: chat.GetId(), text: text);
+        }
+
+    }
+
+    public class Messenger
+    {
+        public string CreateTextMessage(Conversation chat)
+        {
+            var delimiter = ",";
+            var text = "Your history: " + string.Join(delimiter, chat.GetTextMessages().ToArray());
+
+            return text;
         }
     }
 
@@ -124,5 +162,28 @@ namespace Unit_11_Telegram_Bot
             telegramChat = chat;
             telegramMessages = new List<Message>();
         }
+
+        public void AddMessage(Message message)
+        {
+            telegramMessages.Add(message);
+        }
+
+        public List<string> GetTextMessages()
+        {
+            var textMessages = new List<string>();
+
+            foreach (var message in telegramMessages)
+            {
+                if (message.Text != null)
+                {
+                    textMessages.Add(message.Text);
+                }
+            }
+
+            return textMessages;
+        }
+
+        public long GetId() => telegramChat.Id;
+
     }
 }
