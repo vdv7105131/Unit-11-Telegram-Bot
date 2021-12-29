@@ -29,14 +29,14 @@ namespace Unit_11_Telegram_Bot
     }
 
     /// <summary>
-    /// Токен
+    /// Token to access the HTTP API
     /// </summary>
     public static class BotCredentials
     {
         /// <summary>
         /// Token to access the HTTP API
         /// </summary>
-        public static readonly string BotToken = "2136604647:AAH1ghd5fbxOhdW_-6ZU-fFgAIEOgXHUv-4";
+        public static readonly string BotToken = "2136604647:AAH1ghd5fbxsOhdW";
 
     }
 
@@ -103,8 +103,7 @@ namespace Unit_11_Telegram_Bot
         public BotMessageLogic(ITelegramBotClient botClient)
         {
             messanger = new Messenger();
-            chatList = new Dictionary<long,
-            Conversation>();
+            chatList = new Dictionary<long, Conversation>();
             this.botClient = botClient;
         }
 
@@ -134,9 +133,11 @@ namespace Unit_11_Telegram_Bot
             await botClient.SendTextMessageAsync(
             chatId: chat.GetId(), text: text);
         }
-
     }
 
+    /// <summary>
+    /// Сообщение
+    /// </summary>
     public class Messenger
     {
         public string CreateTextMessage(Conversation chat)
@@ -149,7 +150,10 @@ namespace Unit_11_Telegram_Bot
     }
 
     /// <summary>
-    /// Этот класс представляет собой объект чата, так как чатов у нас может быть немало, нашему боту нужно отвечать каждому пользователю индивидуально. В этом классе нам требуется создать список сообщений и объект Телеграм-чата. Объекты должны быть приватные
+    /// Беседа. 
+    /// Этот класс представляет собой объект чата, так как чатов у нас может быть немало, 
+    /// нашему боту нужно отвечать каждому пользователю индивидуально. 
+    /// В этом классе нам требуется создать список сообщений и объект Телеграм-чата. Объекты должны быть приватные
     /// </summary>
     public class Conversation
     {
@@ -184,6 +188,5 @@ namespace Unit_11_Telegram_Bot
         }
 
         public long GetId() => telegramChat.Id;
-
     }
 }
